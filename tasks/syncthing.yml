@@ -15,19 +15,31 @@
   changed_when: false
   ignore_errors: true
   register: version
+  when: not syncthing_use_repository
+
+- name: apt-key
+  apt_key: url={{syncthing_key_url}} state=present
+  when: syncthing_use_repository
+
+- name: repository
+  apt_repository: repo='deb {{syncthing_repository}}' state=present
+  when: syncthing_use_repository
+
+- name: install
+  apt: pkg={{syncthing_package}} state=installed
+  when: syncthing_use_repository
 
 - name: download
   get_url: url="{{syncthing_url}}" dest=/tmp/syncthing_{{syncthing_version}}.tar.gz
-  when: version|failed or version.stdout != "{{syncthing_version}}"
+  when: not syncthing_use_repository and (version|failed or version.stdout != "{{syncthing_version}}")
 
 - name: extract
   command: tar xvzf /tmp/syncthing_{{syncthing_version}}.tar.gz -C /tmp
-  when: version|failed or version.stdout != "{{syncthing_version}}"
-
+  when: not syncthing_use_repository and (version|failed or version.stdout != "{{syncthing_version}}")
 
 - name: copy executable to home dir
   shell: cp /tmp/syncthing-*{{syncthing_version}}/syncthing {{syncthing_home}}/bin/syncthing
-  when: version|failed or version.stdout != "{{syncthing_version}}"
+  when: not syncthing_use_repository and (version|failed or version.stdout != "{{syncthing_version}}")
 
 - name: set ownership
   file: path={{syncthing_home}} recurse=yes owner={{syncthing_user}} group={{syncthing_user}}
@@ -52,7 +64,7 @@
 
 - name: systemd | activate service
   service: name=syncthing enabled=yes state=started
-  when: syncthing_use_systemd
+  when: syncthing_use_systemd or syncthing_use_repository
 
 - name: systemd | reload service
   service: name=syncthing state=reloaded

@@ -7,6 +7,9 @@ serf_architecture:
 
 syncthing_version: 0.10.23
 syncthing_url: https://github.com/syncthing/syncthing/releases/download/v{{syncthing_version}}/syncthing-{{ansible_system|lower}}-{{serf_architecture[ansible_architecture]}}-v{{syncthing_version}}.tar.gz
+syncthing_key_url: https://syncthing.net/release-key.txt
+syncthing_package: syncthing
+syncthing_repository: http://apt.syncthing.net/ syncthing release
 syncthing_user: syncthing
 syncthing_address: 0.0.0.0:8080
 syncthing_listen: 0.0.0.0:22000
@@ -19,3 +22,4 @@ syncthing_upnp: true
 syncthing_use_ufw: true
 syncthing_use_systemd: false
 syncthing_use_supervisor: true
+syncthing_use_repository: false
